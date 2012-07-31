@@ -117,8 +117,10 @@ struct xsm_operations {
 
     char *(*show_irq_sid) (int irq);
     int (*map_domain_pirq) (struct domain *d, int irq, void *data);
+    int (*unmap_domain_pirq) (struct domain *d, int irq);
     int (*irq_permission) (struct domain *d, int pirq, uint8_t allow);
     int (*iomem_permission) (struct domain *d, uint64_t s, uint64_t e, uint8_t allow);
+    int (*iomem_mapping) (struct domain *d, uint64_t s, uint64_t e, uint8_t allow);
     int (*pci_config_permission) (struct domain *d, uint32_t machine_bdf, uint16_t start, uint16_t end, uint8_t access);
 
     int (*get_device_group) (uint32_t machine_bdf);
@@ -176,11 +178,12 @@ struct xsm_operations {
     int (*add_to_physmap) (struct domain *d1, struct domain *d2);
     int (*sendtrigger) (struct domain *d);
     int (*bind_pt_irq) (struct domain *d, struct xen_domctl_bind_pt_irq *bind);
-    int (*unbind_pt_irq) (struct domain *d);
+    int (*unbind_pt_irq) (struct domain *d, struct xen_domctl_bind_pt_irq *bind);
     int (*pin_mem_cacheattr) (struct domain *d);
     int (*ext_vcpucontext) (struct domain *d, uint32_t cmd);
     int (*vcpuextstate) (struct domain *d, uint32_t cmd);
     int (*ioport_permission) (struct domain *d, uint32_t s, uint32_t e, uint8_t allow);
+    int (*ioport_mapping) (struct domain *d, uint32_t s, uint32_t e, uint8_t allow);
 #endif
 };
 
@@ -495,6 +498,11 @@ static inline int xsm_map_domain_pirq (struct domain *d, int irq, void *data)
     return xsm_call(map_domain_pirq(d, irq, data));
 }
 
+static inline int xsm_unmap_domain_pirq (struct domain *d, int irq)
+{
+    return xsm_call(unmap_domain_pirq(d, irq));
+}
+
 static inline int xsm_irq_permission (struct domain *d, int pirq, uint8_t allow)
 {
     return xsm_call(irq_permission(d, pirq, allow));
@@ -503,6 +511,11 @@ static inline int xsm_irq_permission (struct domain *d, int pirq, uint8_t allow)
 static inline int xsm_iomem_permission (struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
 {
     return xsm_call(iomem_permission(d, s, e, allow));
+}
+
+static inline int xsm_iomem_mapping (struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
+{
+    return xsm_call(iomem_mapping(d, s, e, allow));
 }
 
 static inline int xsm_pci_config_permission (struct domain *d, uint32_t machine_bdf, uint16_t start, uint16_t end, uint8_t access)
@@ -781,9 +794,10 @@ static inline int xsm_bind_pt_irq(struct domain *d,
     return xsm_call(bind_pt_irq(d, bind));
 }
 
-static inline int xsm_unbind_pt_irq(struct domain *d)
+static inline int xsm_unbind_pt_irq(struct domain *d,
+                                                struct xen_domctl_bind_pt_irq *bind)
 {
-    return xsm_call(unbind_pt_irq(d));
+    return xsm_call(unbind_pt_irq(d, bind));
 }
 
 static inline int xsm_pin_mem_cacheattr(struct domain *d)
@@ -803,6 +817,11 @@ static inline int xsm_vcpuextstate(struct domain *d, uint32_t cmd)
 static inline int xsm_ioport_permission (struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
 {
     return xsm_call(ioport_permission(d, s, e, allow));
+}
+
+static inline int xsm_ioport_mapping (struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
+{
+    return xsm_call(ioport_mapping(d, s, e, allow));
 }
 #endif /* CONFIG_X86 */
 

@@ -395,12 +395,22 @@ static int dummy_map_domain_pirq (struct domain *d, int irq, void *data)
     return 0;
 }
 
+static int dummy_unmap_domain_pirq (struct domain *d, int irq)
+{
+    return 0;
+}
+
 static int dummy_irq_permission (struct domain *d, int pirq, uint8_t allow)
 {
     return 0;
 }
 
 static int dummy_iomem_permission (struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
+{
+    return 0;
+}
+
+static int dummy_iomem_mapping (struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
 {
     return 0;
 }
@@ -585,7 +595,7 @@ static int dummy_bind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *b
     return 0;
 }
 
-static int dummy_unbind_pt_irq (struct domain *d)
+static int dummy_unbind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *bind)
 {
     return 0;
 }
@@ -606,6 +616,11 @@ static int dummy_vcpuextstate (struct domain *d, uint32_t cmd)
 }
 
 static int dummy_ioport_permission (struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
+{
+    return 0;
+}
+
+static int dummy_ioport_mapping (struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
 {
     return 0;
 }
@@ -693,8 +708,10 @@ void xsm_fixup_ops (struct xsm_operations *ops)
 
     set_to_dummy_if_null(ops, show_irq_sid);
     set_to_dummy_if_null(ops, map_domain_pirq);
+    set_to_dummy_if_null(ops, unmap_domain_pirq);
     set_to_dummy_if_null(ops, irq_permission);
     set_to_dummy_if_null(ops, iomem_permission);
+    set_to_dummy_if_null(ops, iomem_mapping);
     set_to_dummy_if_null(ops, pci_config_permission);
 
     set_to_dummy_if_null(ops, get_device_group);
@@ -757,5 +774,6 @@ void xsm_fixup_ops (struct xsm_operations *ops)
     set_to_dummy_if_null(ops, ext_vcpucontext);
     set_to_dummy_if_null(ops, vcpuextstate);
     set_to_dummy_if_null(ops, ioport_permission);
+    set_to_dummy_if_null(ops, ioport_mapping);
 #endif
 }
