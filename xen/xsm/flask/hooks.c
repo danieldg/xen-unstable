@@ -1079,6 +1079,16 @@ static inline int flask_sched_op(void)
     return domain_has_xen(current->domain, XEN__SCHED_OP);
 }
 
+static inline int flask_tmem_op(void)
+{
+    return domain_has_xen(current->domain, XEN__TMEM_OP);
+}
+
+static inline int flask_tmem_control(void)
+{
+    return domain_has_xen(current->domain, XEN__TMEM_CONTROL);
+}
+
 static int flask_perfcontrol(void)
 {
     return domain_has_xen(current->domain, XEN__PERFCONTROL);
@@ -1723,6 +1733,8 @@ static struct xsm_operations flask_ops = {
     .lockprof = flask_lockprof,
     .cpupool_op = flask_cpupool_op,
     .sched_op = flask_sched_op,
+    .tmem_op = flask_tmem_op,
+    .tmem_control = flask_tmem_control,
 
     .do_xsm_op = do_flask_op,
 

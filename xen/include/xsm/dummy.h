@@ -443,6 +443,18 @@ static XSM_DEFAULT(int, sched_op) (void)
     return 0;
 }
 
+static XSM_DEFAULT(int, tmem_op) (void)
+{
+    return 0;
+}
+
+static XSM_DEFAULT(int, tmem_control) (void)
+{
+    if ( !IS_PRIV(current->domain) )
+        return -EPERM;
+    return 0;
+}
+
 static XSM_DEFAULT(long, do_xsm_op)(XEN_GUEST_HANDLE_PARAM(xsm_op_t) op)
 {
     return -ENOSYS;

@@ -134,6 +134,8 @@ struct xsm_operations {
     int (*lockprof)(void);
     int (*cpupool_op)(void);
     int (*sched_op)(void);
+    int (*tmem_op)(void);
+    int (*tmem_control)(void);
 
     long (*do_xsm_op) (XEN_GUEST_HANDLE_PARAM(xsm_op_t) op);
 
@@ -608,6 +610,16 @@ static inline int xsm_cpupool_op(void)
 static inline int xsm_sched_op(void)
 {
     return xsm_ops->sched_op();
+}
+
+static inline int xsm_tmem_op(void)
+{
+    return xsm_ops->tmem_op();
+}
+
+static inline int xsm_tmem_control(void)
+{
+    return xsm_ops->tmem_control();
 }
 
 static inline long xsm_do_xsm_op (XEN_GUEST_HANDLE_PARAM(xsm_op_t) op)

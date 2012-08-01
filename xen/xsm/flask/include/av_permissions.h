@@ -29,6 +29,8 @@
 #define XEN__LOCKPROF                             0x08000000UL
 #define XEN__CPUPOOL_OP                           0x10000000UL
 #define XEN__SCHED_OP                             0x20000000UL
+#define XEN__TMEM_OP                              0x40000000UL
+#define XEN__TMEM_CONTROL                         0x80000000UL
 
 #define DOMAIN__SETVCPUCONTEXT                    0x00000001UL
 #define DOMAIN__PAUSE                             0x00000002UL

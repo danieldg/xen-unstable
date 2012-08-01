@@ -29,6 +29,8 @@
    S_(SECCLASS_XEN, XEN__LOCKPROF, "lockprof")
    S_(SECCLASS_XEN, XEN__CPUPOOL_OP, "cpupool_op")
    S_(SECCLASS_XEN, XEN__SCHED_OP, "sched_op")
+   S_(SECCLASS_XEN, XEN__TMEM_OP, "tmem_op")
+   S_(SECCLASS_XEN, XEN__TMEM_CONTROL, "tmem_control")
    S_(SECCLASS_DOMAIN, DOMAIN__SETVCPUCONTEXT, "setvcpucontext")
    S_(SECCLASS_DOMAIN, DOMAIN__PAUSE, "pause")
    S_(SECCLASS_DOMAIN, DOMAIN__UNPAUSE, "unpause")
