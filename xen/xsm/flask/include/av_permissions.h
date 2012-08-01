@@ -66,6 +66,8 @@
 #define DOMAIN2__RELABELFROM                      0x00000001UL
 #define DOMAIN2__RELABELTO                        0x00000002UL
 #define DOMAIN2__RELABELSELF                      0x00000004UL
+#define DOMAIN2__MAKE_PRIV_FOR                    0x00000008UL
+#define DOMAIN2__SET_AS_TARGET                    0x00000010UL
 
 #define HVM__SETHVMC                              0x00000001UL
 #define HVM__GETHVMC                              0x00000002UL
