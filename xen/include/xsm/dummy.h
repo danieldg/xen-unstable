@@ -551,13 +551,34 @@ static XSM_DEFAULT(int, hvm_inject_msi) (struct domain *d)
     return 0;
 }
 
-static XSM_DEFAULT(int, mem_event) (struct domain *d)
+static XSM_DEFAULT(int, mem_event_setup) (struct domain *d)
 {
+    return 0;
+}
+
+static XSM_DEFAULT(int, mem_event_control) (struct domain *d, int mode, int op)
+{
+    if ( !IS_PRIV(current->domain) )
+        return -EPERM;
+    return 0;
+}
+
+static XSM_DEFAULT(int, mem_event_op) (struct domain *d, int op)
+{
+    if ( !IS_PRIV_FOR(current->domain, d) )
+        return -EPERM;
     return 0;
 }
 
 static XSM_DEFAULT(int, mem_sharing) (struct domain *d)
 {
+    return 0;
+}
+
+static XSM_DEFAULT(int, mem_sharing_op) (struct domain *d, struct domain *cd, int op)
+{
+    if ( !IS_PRIV_FOR(current->domain, cd) )
+        return -EPERM;
     return 0;
 }
 

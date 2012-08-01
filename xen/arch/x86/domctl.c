@@ -1503,10 +1503,8 @@ long arch_do_domctl(
         d = rcu_lock_domain_by_id(domctl->domain);
         if ( d != NULL )
         {
-            ret = xsm_mem_event(d);
-            if ( !ret )
-                ret = mem_event_domctl(d, &domctl->u.mem_event_op,
-                                       guest_handle_cast(u_domctl, void));
+            ret = mem_event_domctl(d, &domctl->u.mem_event_op,
+                                   guest_handle_cast(u_domctl, void));
             rcu_unlock_domain(d);
             copy_to_guest(u_domctl, domctl, 1);
         } 
@@ -1562,7 +1560,7 @@ long arch_do_domctl(
         d = rcu_lock_domain_by_id(domctl->domain);
         if ( d != NULL )
         {
-            ret = xsm_mem_event(d);
+            ret = xsm_mem_event_setup(d);
             if ( !ret ) {
                 p2m = p2m_get_hostp2m(d);
                 p2m->access_required = domctl->u.access_required.access_required;

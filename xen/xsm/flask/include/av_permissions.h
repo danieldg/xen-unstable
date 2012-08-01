@@ -87,6 +87,7 @@
 #define HVM__MEM_SHARING                          0x00001000UL
 #define HVM__AUDIT_P2M                            0x00002000UL
 #define HVM__SEND_IRQ                             0x00004000UL
+#define HVM__SHARE_MEM                            0x00008000UL
 
 #define EVENT__BIND                               0x00000001UL
 #define EVENT__SEND                               0x00000002UL

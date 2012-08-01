@@ -84,6 +84,7 @@
    S_(SECCLASS_HVM, HVM__MEM_SHARING, "mem_sharing")
    S_(SECCLASS_HVM, HVM__AUDIT_P2M, "audit_p2m")
    S_(SECCLASS_HVM, HVM__SEND_IRQ, "send_irq")
+   S_(SECCLASS_HVM, HVM__SHARE_MEM, "share_mem")
    S_(SECCLASS_EVENT, EVENT__BIND, "bind")
    S_(SECCLASS_EVENT, EVENT__SEND, "send")
    S_(SECCLASS_EVENT, EVENT__STATUS, "status")
