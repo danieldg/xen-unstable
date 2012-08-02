@@ -111,6 +111,7 @@
    S_(SECCLASS_MMU, MMU__MFNLIST, "mfnlist")
    S_(SECCLASS_MMU, MMU__MEMORYMAP, "memorymap")
    S_(SECCLASS_MMU, MMU__REMOTE_REMAP, "remote_remap")
+   S_(SECCLASS_MMU, MMU__MMUEXT_OP, "mmuext_op")
    S_(SECCLASS_SHADOW, SHADOW__DISABLE, "disable")
    S_(SECCLASS_SHADOW, SHADOW__ENABLE, "enable")
    S_(SECCLASS_SHADOW, SHADOW__LOGDIRTY, "logdirty")

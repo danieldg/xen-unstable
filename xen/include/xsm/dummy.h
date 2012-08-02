@@ -662,21 +662,28 @@ static XSM_DEFAULT(int, domain_memory_map) (struct domain *d)
     return 0;
 }
 
-static XSM_DEFAULT(int, mmu_normal_update) (struct domain *d, struct domain *t,
-                                            struct domain *f, intpte_t fpte)
+static XSM_DEFAULT(int, mmu_update) (struct domain *d, struct domain *t,
+                                     struct domain *f, uint32_t flags)
 {
+    if ( t && d != t && !IS_PRIV_FOR(d, t) )
+        return -EPERM;
+    if ( d != f && !IS_PRIV_FOR(d, f) )
+        return -EPERM;
     return 0;
 }
 
-static XSM_DEFAULT(int, mmu_machphys_update) (struct domain *d, struct domain *f,
-                                              unsigned long mfn)
+static XSM_DEFAULT(int, mmuext_op) (struct domain *d, struct domain *f)
 {
+    if ( d != f && !IS_PRIV_FOR(d, f) )
+        return -EPERM;
     return 0;
 }
 
 static XSM_DEFAULT(int, update_va_mapping) (struct domain *d, struct domain *f, 
                                                             l1_pgentry_t pte)
 {
+    if ( d != f && !IS_PRIV_FOR(d, f) )
+        return -EPERM;
     return 0;
 }
 
