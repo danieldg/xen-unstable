@@ -1534,7 +1534,7 @@ long arch_do_domctl(
     {
         struct domain *d;
 
-        ret = rcu_lock_remote_target_domain_by_id(domctl->domain, &d);
+        ret = rcu_lock_remote_domain_by_id(domctl->domain, &d);
         if ( ret != 0 )
             break;
 
