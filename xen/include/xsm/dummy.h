@@ -106,6 +106,13 @@ static XSM_DEFAULT(int, domctl)(struct domain *d, int cmd)
     return 0;
 }
 
+static XSM_DEFAULT(int, sysctl)(int cmd)
+{
+    if ( !IS_PRIV(current->domain) )
+        return -EPERM;
+    return 0;
+}
+
 static XSM_DEFAULT(int, set_virq_handler)(struct domain *d, uint32_t virq)
 {
     return 0;
