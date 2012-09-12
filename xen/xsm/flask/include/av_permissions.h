@@ -68,6 +68,9 @@
 #define DOMAIN2__RELABELSELF                      0x00000004UL
 #define DOMAIN2__MAKE_PRIV_FOR                    0x00000008UL
 #define DOMAIN2__SET_AS_TARGET                    0x00000010UL
+#define DOMAIN2__SET_CPUID                        0x00000020UL
+#define DOMAIN2__GETTSC                           0x00000040UL
+#define DOMAIN2__SETTSC                           0x00000080UL
 
 #define HVM__SETHVMC                              0x00000001UL
 #define HVM__GETHVMC                              0x00000002UL
@@ -82,6 +85,8 @@
 #define HVM__HVMCTL                               0x00000400UL
 #define HVM__MEM_EVENT                            0x00000800UL
 #define HVM__MEM_SHARING                          0x00001000UL
+#define HVM__AUDIT_P2M                            0x00002000UL
+#define HVM__SEND_IRQ                             0x00004000UL
 
 #define EVENT__BIND                               0x00000001UL
 #define EVENT__SEND                               0x00000002UL
