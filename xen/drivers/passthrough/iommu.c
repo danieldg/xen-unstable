@@ -538,10 +538,9 @@ void iommu_crash_shutdown(void)
 }
 
 int iommu_do_domctl(
-    struct xen_domctl *domctl,
+    struct xen_domctl *domctl, struct domain *d,
     XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
 {
-    struct domain *d;
     u16 seg;
     u8 bus, devfn;
     int ret = 0;
@@ -558,10 +557,6 @@ int iommu_do_domctl(
 
         ret = xsm_get_device_group(domctl->u.get_device_group.machine_sbdf);
         if ( ret )
-            break;
-
-        ret = -EINVAL;
-        if ( (d = rcu_lock_domain_by_id(domctl->domain)) == NULL )
             break;
 
         seg = domctl->u.get_device_group.machine_sbdf >> 16;
@@ -584,7 +579,6 @@ int iommu_do_domctl(
         }
         if ( copy_to_guest(u_domctl, domctl, 1) )
             ret = -EFAULT;
-        rcu_unlock_domain(d);
     }
     break;
 
@@ -607,20 +601,15 @@ int iommu_do_domctl(
         break;
 
     case XEN_DOMCTL_assign_device:
-        if ( unlikely((d = get_domain_by_id(domctl->domain)) == NULL) ||
-             unlikely(d->is_dying) )
+        if ( unlikely(d->is_dying) )
         {
-            printk(XENLOG_G_ERR
-                   "XEN_DOMCTL_assign_device: get_domain_by_id() failed\n");
             ret = -EINVAL;
-            if ( d )
-                goto assign_device_out;
             break;
         }
 
         ret = xsm_assign_device(d, domctl->u.assign_device.machine_sbdf);
         if ( ret )
-            goto assign_device_out;
+            break;
 
         seg = domctl->u.get_device_group.machine_sbdf >> 16;
         bus = (domctl->u.assign_device.machine_sbdf >> 8) & 0xff;
@@ -634,22 +623,12 @@ int iommu_do_domctl(
                    seg, bus, PCI_SLOT(devfn), PCI_FUNC(devfn),
                    d->domain_id, ret);
 
-    assign_device_out:
-        put_domain(d);
         break;
 
     case XEN_DOMCTL_deassign_device:
-        if ( unlikely((d = get_domain_by_id(domctl->domain)) == NULL) )
-        {
-            printk(XENLOG_G_ERR
-                   "XEN_DOMCTL_deassign_device: get_domain_by_id() failed\n");
-            ret = -EINVAL;
-            break;
-        }
-
         ret = xsm_deassign_device(d, domctl->u.assign_device.machine_sbdf);
         if ( ret )
-            goto deassign_device_out;
+            break;
 
         seg = domctl->u.get_device_group.machine_sbdf >> 16;
         bus = (domctl->u.assign_device.machine_sbdf >> 8) & 0xff;
@@ -664,8 +643,6 @@ int iommu_do_domctl(
                    seg, bus, PCI_SLOT(devfn), PCI_FUNC(devfn),
                    d->domain_id, ret);
 
-    deassign_device_out:
-        put_domain(d);
         break;
 
     default:
