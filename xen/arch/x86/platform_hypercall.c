@@ -419,10 +419,6 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     break;
 
     case XENPF_set_processor_pminfo:
-        ret = xsm_setpminfo();
-        if ( ret )
-            break;
-
         switch ( op->u.set_pminfo.type )
         {
         case XEN_PM_PX:
@@ -475,10 +471,6 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
 
         g_info = &op->u.pcpu_info;
 
-        ret = xsm_getcpuinfo();
-        if ( ret )
-            break;
-
         if ( !get_cpu_maps() )
         {
             ret = -EBUSY;
@@ -511,10 +503,6 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     case XENPF_get_cpu_version:
     {
         struct xenpf_pcpu_version *ver = &op->u.pcpu_version;
-
-        ret = xsm_getcpuinfo();
-        if ( ret )
-            break;
 
         if ( !get_cpu_maps() )
         {

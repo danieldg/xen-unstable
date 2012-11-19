@@ -58,47 +58,7 @@ static XSM_INLINE int xsm_sysctl(int cmd)
     return 0;
 }
 
-static XSM_INLINE int xsm_tbufcontrol(void)
-{
-    return 0;
-}
-
 static XSM_INLINE int xsm_readconsole(uint32_t clear)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_sched_id(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_perfcontrol(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_debug_keys(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_getcpuinfo(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_get_pmstat(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_setpminfo(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_pm_op(void)
 {
     return 0;
 }
@@ -107,11 +67,6 @@ static XSM_INLINE int xsm_do_mca(void)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
-    return 0;
-}
-
-static XSM_INLINE int xsm_availheap(void)
-{
     return 0;
 }
 
@@ -358,16 +313,6 @@ static XSM_INLINE int xsm_lockprof(void)
     return 0;
 }
 
-static XSM_INLINE int xsm_cpupool_op(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_sched_op(void)
-{
-    return 0;
-}
-
 static XSM_INLINE int xsm_tmem_op(void)
 {
     return 0;
@@ -504,11 +449,6 @@ static XSM_INLINE int xsm_memtype(uint32_t access)
 }
 
 static XSM_INLINE int xsm_microcode(void)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_physinfo(void)
 {
     return 0;
 }

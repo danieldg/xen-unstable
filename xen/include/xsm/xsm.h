@@ -46,16 +46,7 @@ struct xsm_operations {
     int (*set_target) (struct domain *d, struct domain *e);
     int (*domctl) (struct domain *d, int cmd);
     int (*sysctl) (int cmd);
-    int (*tbufcontrol) (void);
     int (*readconsole) (uint32_t clear);
-    int (*sched_id) (void);
-    int (*perfcontrol) (void);
-    int (*debug_keys) (void);
-    int (*getcpuinfo) (void);
-    int (*availheap) (void);
-    int (*get_pmstat) (void);
-    int (*setpminfo) (void);
-    int (*pm_op) (void);
     int (*do_mca) (void);
 
     int (*evtchn_unbound) (struct domain *d, struct evtchn *chn, domid_t id2);
@@ -117,8 +108,6 @@ struct xsm_operations {
 
     int (*page_offline)(uint32_t cmd);
     int (*lockprof)(void);
-    int (*cpupool_op)(void);
-    int (*sched_op)(void);
     int (*tmem_op)(void);
     int (*tmem_control)(void);
 
@@ -138,7 +127,6 @@ struct xsm_operations {
     int (*xen_settime) (void);
     int (*memtype) (uint32_t access);
     int (*microcode) (void);
-    int (*physinfo) (void);
     int (*platform_quirk) (uint32_t);
     int (*platform_op) (uint32_t cmd);
     int (*firmware_info) (void);
@@ -201,54 +189,9 @@ static inline int xsm_sysctl (int cmd)
     return xsm_ops->sysctl(cmd);
 }
 
-static inline int xsm_tbufcontrol (void)
-{
-    return xsm_ops->tbufcontrol();
-}
-
 static inline int xsm_readconsole (uint32_t clear)
 {
     return xsm_ops->readconsole(clear);
-}
-
-static inline int xsm_sched_id (void)
-{
-    return xsm_ops->sched_id();
-}
-
-static inline int xsm_perfcontrol (void)
-{
-    return xsm_ops->perfcontrol();
-}
-
-static inline int xsm_debug_keys (void)
-{
-    return xsm_ops->debug_keys();
-}
-
-static inline int xsm_availheap (void)
-{
-    return xsm_ops->availheap();
-}
-
-static inline int xsm_getcpuinfo (void)
-{
-    return xsm_ops->getcpuinfo();
-}
-
-static inline int xsm_get_pmstat(void)
-{
-    return xsm_ops->get_pmstat();
-}
-
-static inline int xsm_setpminfo(void)
-{
-    return xsm_ops->setpminfo();
-}
-
-static inline int xsm_pm_op(void)
-{
-    return xsm_ops->pm_op();
 }
 
 static inline int xsm_do_mca(void)
@@ -502,16 +445,6 @@ static inline int xsm_lockprof(void)
     return xsm_ops->lockprof();
 }
 
-static inline int xsm_cpupool_op(void)
-{
-    return xsm_ops->cpupool_op();
-}
-
-static inline int xsm_sched_op(void)
-{
-    return xsm_ops->sched_op();
-}
-
 static inline int xsm_tmem_op(void)
 {
     return xsm_ops->tmem_op();
@@ -591,11 +524,6 @@ static inline int xsm_memtype (uint32_t access)
 static inline int xsm_microcode (void)
 {
     return xsm_ops->microcode();
-}
-
-static inline int xsm_physinfo (void)
-{
-    return xsm_ops->physinfo();
 }
 
 static inline int xsm_platform_quirk (uint32_t quirk)
