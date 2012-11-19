@@ -2715,7 +2715,7 @@ long do_mmuext_op(
         goto out;
     }
 
-    rc = xsm_mmuext_op(d, pg_owner);
+    rc = xsm_target_mmuext_op(d, pg_owner);
     if ( rc )
     {
         rcu_unlock_domain(pg_owner);
@@ -2787,7 +2787,7 @@ long do_mmuext_op(
                 break;
             }
 
-            if ( (rc = xsm_memory_pin_page(d, pg_owner, page)) != 0 )
+            if ( (rc = xsm_hook_memory_pin_page(d, pg_owner, page)) != 0 )
             {
                 put_page_and_type(page);
                 okay = 0;
@@ -3244,7 +3244,7 @@ long do_mmu_update(
             }
             if ( xsm_needed != xsm_checked )
             {
-                rc = xsm_mmu_update(d, pt_owner, pg_owner, xsm_needed);
+                rc = xsm_target_mmu_update(d, pt_owner, pg_owner, xsm_needed);
                 if ( rc )
                     break;
                 xsm_checked = xsm_needed;
@@ -3363,7 +3363,7 @@ long do_mmu_update(
             xsm_needed |= XSM_MMU_MACHPHYS_UPDATE;
             if ( xsm_needed != xsm_checked )
             {
-                rc = xsm_mmu_update(d, NULL, pg_owner, xsm_needed);
+                rc = xsm_target_mmu_update(d, NULL, pg_owner, xsm_needed);
                 if ( rc )
                     break;
                 xsm_checked = xsm_needed;
@@ -3931,7 +3931,7 @@ static int __do_update_va_mapping(
 
     perfc_incr(calls_to_update_va);
 
-    rc = xsm_update_va_mapping(d, pg_owner, val);
+    rc = xsm_target_update_va_mapping(d, pg_owner, val);
     if ( rc )
         return rc;
 
@@ -4402,7 +4402,7 @@ long arch_memory_op(int op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( d == NULL )
             return -ESRCH;
 
-        if ( xsm_add_to_physmap(current->domain, d) )
+        if ( xsm_target_add_to_physmap(current->domain, d) )
         {
             rcu_unlock_domain(d);
             return -EPERM;
@@ -4441,7 +4441,7 @@ long arch_memory_op(int op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( d == NULL )
             return -ESRCH;
 
-        rc = xsm_domain_memory_map(d);
+        rc = xsm_target_domain_memory_map(d);
         if ( rc )
         {
             rcu_unlock_domain(d);
@@ -4516,7 +4516,7 @@ long arch_memory_op(int op, XEN_GUEST_HANDLE_PARAM(void) arg)
         XEN_GUEST_HANDLE_PARAM(e820entry_t) buffer_param;
         unsigned int i;
 
-        rc = xsm_machine_memory_map();
+        rc = xsm_priv_machine_memory_map();
         if ( rc )
             return rc;
 
@@ -4600,9 +4600,9 @@ long arch_memory_op(int op, XEN_GUEST_HANDLE_PARAM(void) arg)
             return -ESRCH;
 
         if ( op == XENMEM_set_pod_target )
-            rc = xsm_set_pod_target(d);
+            rc = xsm_priv_set_pod_target(d);
         else
-            rc = xsm_get_pod_target(d);
+            rc = xsm_priv_get_pod_target(d);
 
         if ( rc != 0 )
             goto pod_target_out_unlock;

@@ -57,7 +57,7 @@ long do_sysctl(XEN_GUEST_HANDLE_PARAM(xen_sysctl_t) u_sysctl)
     {
     case XEN_SYSCTL_readconsole:
     {
-        ret = xsm_readconsole(op->u.readconsole.clear);
+        ret = xsm_hook_readconsole(op->u.readconsole.clear);
         if ( ret )
             break;
 
@@ -100,7 +100,7 @@ long do_sysctl(XEN_GUEST_HANDLE_PARAM(xen_sysctl_t) u_sysctl)
             if ( num_domains == op->u.getdomaininfolist.max_domains )
                 break;
 
-            ret = xsm_getdomaininfo(d);
+            ret = xsm_hook_getdomaininfo(d);
             if ( ret )
                 continue;
 
@@ -231,7 +231,7 @@ long do_sysctl(XEN_GUEST_HANDLE_PARAM(xen_sysctl_t) u_sysctl)
         uint32_t *status, *ptr;
         unsigned long pfn;
 
-        ret = xsm_page_offline(op->u.page_offline.cmd);
+        ret = xsm_hook_page_offline(op->u.page_offline.cmd);
         if ( ret )
             break;
 

@@ -329,12 +329,12 @@ static inline bool_t tmh_set_client_from_id(
 
 static inline bool_t tmh_current_permitted(void)
 {
-    return !xsm_tmem_op();
+    return !xsm_hook_tmem_op();
 }
 
 static inline bool_t tmh_current_is_privileged(void)
 {
-    return !xsm_tmem_control();
+    return !xsm_priv_tmem_control();
 }
 
 static inline uint8_t tmh_get_first_byte(pfp_t *pfp)

@@ -72,7 +72,7 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     if ( op->interface_version != XENPF_INTERFACE_VERSION )
         return -EACCES;
 
-    ret = xsm_platform_op(op->cmd);
+    ret = xsm_priv_platform_op(op->cmd);
     if ( ret )
         return ret;
 
@@ -496,7 +496,7 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     {
         int cpu = op->u.cpu_ol.cpuid;
 
-        ret = xsm_resource_plug_core();
+        ret = xsm_hook_resource_plug_core();
         if ( ret )
             break;
 
@@ -512,7 +512,7 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
             break;
         }
 
-        ret = xsm_resource_plug_core();
+        ret = xsm_hook_resource_plug_core();
         if ( ret )
             break;
 
@@ -525,7 +525,7 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     {
         int cpu = op->u.cpu_ol.cpuid;
 
-        ret = xsm_resource_unplug_core();
+        ret = xsm_hook_resource_unplug_core();
         if ( ret )
             break;
 
@@ -554,7 +554,7 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     break;
 
     case XENPF_cpu_hotadd:
-        ret = xsm_resource_plug_core();
+        ret = xsm_hook_resource_plug_core();
         if ( ret )
             break;
 
@@ -564,7 +564,7 @@ ret_t do_platform_op(XEN_GUEST_HANDLE_PARAM(xen_platform_op_t) u_xenpf_op)
     break;
 
     case XENPF_mem_hotadd:
-        ret = xsm_resource_plug_core();
+        ret = xsm_hook_resource_plug_core();
         if ( ret )
             break;
 

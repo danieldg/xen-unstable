@@ -3400,7 +3400,7 @@ static int hvmop_set_pci_intx_level(
     if ( !is_hvm_domain(d) )
         goto out;
 
-    rc = xsm_hvm_set_pci_intx_level(d);
+    rc = xsm_dm_hvm_set_pci_intx_level(d);
     if ( rc )
         goto out;
 
@@ -3567,7 +3567,7 @@ static int hvmop_set_isa_irq_level(
     if ( !is_hvm_domain(d) )
         goto out;
 
-    rc = xsm_hvm_set_isa_irq_level(d);
+    rc = xsm_dm_hvm_set_isa_irq_level(d);
     if ( rc )
         goto out;
 
@@ -3611,7 +3611,7 @@ static int hvmop_set_pci_link_route(
     if ( !is_hvm_domain(d) )
         goto out;
 
-    rc = xsm_hvm_set_pci_link_route(d);
+    rc = xsm_dm_hvm_set_pci_link_route(d);
     if ( rc )
         goto out;
 
@@ -3641,7 +3641,7 @@ static int hvmop_inject_msi(
     if ( !is_hvm_domain(d) )
         goto out;
 
-    rc = xsm_hvm_inject_msi(d);
+    rc = xsm_dm_hvm_inject_msi(d);
     if ( rc )
         goto out;
 
@@ -3738,7 +3738,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail;
 
@@ -3984,7 +3984,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail2;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail2;
 
@@ -4023,7 +4023,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail3;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail3;
 
@@ -4069,7 +4069,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( d == NULL )
             return -ESRCH;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail_getmemtype;
 
@@ -4124,7 +4124,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail4;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail4;
 
@@ -4203,7 +4203,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail5;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail5;
 
@@ -4238,7 +4238,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail6;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail6;
 
@@ -4274,7 +4274,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) || !paging_mode_shadow(d) )
             goto param_fail7;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail7;
 
@@ -4328,7 +4328,7 @@ long do_hvm_op(unsigned long op, XEN_GUEST_HANDLE_PARAM(void) arg)
         if ( !is_hvm_domain(d) )
             goto param_fail8;
 
-        rc = xsm_hvm_param(d, op);
+        rc = xsm_target_hvm_param(d, op);
         if ( rc )
             goto param_fail8;
 

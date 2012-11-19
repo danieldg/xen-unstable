@@ -175,7 +175,7 @@ static long evtchn_alloc_unbound(evtchn_alloc_unbound_t *alloc)
         ERROR_EXIT_DOM(port, d);
     chn = evtchn_from_port(d, port);
 
-    rc = xsm_evtchn_unbound(d, chn, alloc->remote_dom);
+    rc = xsm_target_evtchn_unbound(d, chn, alloc->remote_dom);
     if ( rc )
         goto out;
 
@@ -231,7 +231,7 @@ static long evtchn_bind_interdomain(evtchn_bind_interdomain_t *bind)
          (rchn->u.unbound.remote_domid != ld->domain_id) )
         ERROR_EXIT_DOM(-EINVAL, rd);
 
-    rc = xsm_evtchn_interdomain(ld, lchn, rd, rchn);
+    rc = xsm_hook_evtchn_interdomain(ld, lchn, rd, rchn);
     if ( rc )
         goto out;
 
@@ -535,7 +535,7 @@ static long __evtchn_close(struct domain *d1, int port1)
     chn1->state          = ECS_FREE;
     chn1->notify_vcpu_id = 0;
 
-    xsm_evtchn_close_post(chn1);
+    xsm_hook_evtchn_close_post(chn1);
 
  out:
     if ( d2 != NULL )
@@ -580,7 +580,7 @@ int evtchn_send(struct domain *d, unsigned int lport)
         return -EINVAL;
     }
 
-    ret = xsm_evtchn_send(ld, lchn);
+    ret = xsm_hook_evtchn_send(ld, lchn);
     if ( ret )
         goto out;
 
@@ -812,7 +812,7 @@ static long evtchn_status(evtchn_status_t *status)
 
     chn = evtchn_from_port(d, port);
 
-    rc = xsm_evtchn_status(d, chn);
+    rc = xsm_target_evtchn_status(d, chn);
     if ( rc )
         goto out;
 
@@ -954,7 +954,7 @@ static long evtchn_reset(evtchn_reset_t *r)
     if ( d == NULL )
         return -ESRCH;
 
-    rc = xsm_evtchn_reset(current->domain, d);
+    rc = xsm_target_evtchn_reset(current->domain, d);
     if ( rc )
         goto out;
 
@@ -1101,7 +1101,7 @@ int alloc_unbound_xen_event_channel(
         goto out;
     chn = evtchn_from_port(d, port);
 
-    rc = xsm_evtchn_unbound(d, chn, remote_domid);
+    rc = xsm_target_evtchn_unbound(d, chn, remote_domid);
 
     chn->state = ECS_UNBOUND;
     chn->xen_consumer = get_xen_consumer(notification_fn);

@@ -11,23 +11,23 @@
 #include <xen/sched.h>
 #include <xsm/xsm.h>
 
-static XSM_INLINE void xsm_security_domaininfo(struct domain *d,
+static XSM_INLINE void xsm_populate_security_domaininfo(struct domain *d,
                                     struct xen_domctl_getdomaininfo *info)
 {
     return;
 }
 
-static XSM_INLINE int xsm_domain_create(struct domain *d, u32 ssidref)
+static XSM_INLINE int xsm_hook_domain_create(struct domain *d, u32 ssidref)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_getdomaininfo(struct domain *d)
+static XSM_INLINE int xsm_hook_getdomaininfo(struct domain *d)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_set_target(struct domain *d, struct domain *e)
+static XSM_INLINE int xsm_hook_set_target(struct domain *d, struct domain *e)
 {
     return 0;
 }
@@ -58,12 +58,12 @@ static XSM_INLINE int xsm_sysctl(int cmd)
     return 0;
 }
 
-static XSM_INLINE int xsm_readconsole(uint32_t clear)
+static XSM_INLINE int xsm_hook_readconsole(uint32_t clear)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_do_mca(void)
+static XSM_INLINE int xsm_priv_do_mca(void)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
@@ -80,49 +80,49 @@ static XSM_INLINE void xsm_free_security_domain(struct domain *d)
     return;
 }
 
-static XSM_INLINE int xsm_grant_mapref(struct domain *d1, struct domain *d2,
+static XSM_INLINE int xsm_hook_grant_mapref(struct domain *d1, struct domain *d2,
                                                                 uint32_t flags)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_grant_unmapref(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_hook_grant_unmapref(struct domain *d1, struct domain *d2)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_grant_setup(struct domain *d1, struct domain *d2)
-{
-    if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
-        return -EPERM;
-    return 0;
-}
-
-static XSM_INLINE int xsm_grant_transfer(struct domain *d1, struct domain *d2)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_grant_copy(struct domain *d1, struct domain *d2)
-{
-    return 0;
-}
-
-static XSM_INLINE int xsm_grant_query_size(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_target_grant_setup(struct domain *d1, struct domain *d2)
 {
     if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_memory_exchange(struct domain *d)
+static XSM_INLINE int xsm_hook_grant_transfer(struct domain *d1, struct domain *d2)
+{
+    return 0;
+}
+
+static XSM_INLINE int xsm_hook_grant_copy(struct domain *d1, struct domain *d2)
+{
+    return 0;
+}
+
+static XSM_INLINE int xsm_target_grant_query_size(struct domain *d1, struct domain *d2)
+{
+    if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
+        return -EPERM;
+    return 0;
+}
+
+static XSM_INLINE int xsm_target_memory_exchange(struct domain *d)
 {
     if ( d != current->domain && !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_memory_adjust_reservation(struct domain *d1,
+static XSM_INLINE int xsm_target_memory_adjust_reservation(struct domain *d1,
                                                             struct domain *d2)
 {
     if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
@@ -130,14 +130,14 @@ static XSM_INLINE int xsm_memory_adjust_reservation(struct domain *d1,
     return 0;
 }
 
-static XSM_INLINE int xsm_memory_stat_reservation(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_target_memory_stat_reservation(struct domain *d1, struct domain *d2)
 {
     if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_console_io(struct domain *d, int cmd)
+static XSM_INLINE int xsm_priv_console_io(struct domain *d, int cmd)
 {
 #ifndef VERBOSE
     if ( !IS_PRIV(current->domain) )
@@ -146,32 +146,32 @@ static XSM_INLINE int xsm_console_io(struct domain *d, int cmd)
     return 0;
 }
 
-static XSM_INLINE int xsm_profile(struct domain *d, int op)
+static XSM_INLINE int xsm_hook_profile(struct domain *d, int op)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_kexec(void)
+static XSM_INLINE int xsm_priv_kexec(void)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_schedop_shutdown(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_dm_schedop_shutdown(struct domain *d1, struct domain *d2)
 {
     if ( !IS_PRIV_FOR(d1, d2) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_memory_pin_page(struct domain *d1, struct domain *d2,
+static XSM_INLINE int xsm_hook_memory_pin_page(struct domain *d1, struct domain *d2,
                                           struct page_info *page)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_evtchn_unbound(struct domain *d, struct evtchn *chn,
+static XSM_INLINE int xsm_target_evtchn_unbound(struct domain *d, struct evtchn *chn,
                                          domid_t id2)
 {
     if ( current->domain != d && !IS_PRIV_FOR(current->domain, d) )
@@ -179,30 +179,30 @@ static XSM_INLINE int xsm_evtchn_unbound(struct domain *d, struct evtchn *chn,
     return 0;
 }
 
-static XSM_INLINE int xsm_evtchn_interdomain(struct domain *d1, struct evtchn
+static XSM_INLINE int xsm_hook_evtchn_interdomain(struct domain *d1, struct evtchn
                                 *chan1, struct domain *d2, struct evtchn *chan2)
 {
     return 0;
 }
 
-static XSM_INLINE void xsm_evtchn_close_post(struct evtchn *chn)
+static XSM_INLINE void xsm_hook_evtchn_close_post(struct evtchn *chn)
 {
     return;
 }
 
-static XSM_INLINE int xsm_evtchn_send(struct domain *d, struct evtchn *chn)
+static XSM_INLINE int xsm_hook_evtchn_send(struct domain *d, struct evtchn *chn)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_evtchn_status(struct domain *d, struct evtchn *chn)
+static XSM_INLINE int xsm_target_evtchn_status(struct domain *d, struct evtchn *chn)
 {
     if ( current->domain != d && !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_evtchn_reset(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_target_evtchn_reset(struct domain *d1, struct domain *d2)
 {
     if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
         return -EPERM;
@@ -224,96 +224,96 @@ static XSM_INLINE char * xsm_show_security_evtchn(struct domain *d, const struct
     return NULL;
 }
 
-static XSM_INLINE int xsm_get_pod_target(struct domain *d)
+static XSM_INLINE int xsm_priv_get_pod_target(struct domain *d)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_set_pod_target(struct domain *d)
+static XSM_INLINE int xsm_priv_set_pod_target(struct domain *d)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_get_device_group(uint32_t machine_bdf)
+static XSM_INLINE int xsm_hook_get_device_group(uint32_t machine_bdf)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_test_assign_device(uint32_t machine_bdf)
+static XSM_INLINE int xsm_hook_test_assign_device(uint32_t machine_bdf)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_assign_device(struct domain *d, uint32_t machine_bdf)
+static XSM_INLINE int xsm_hook_assign_device(struct domain *d, uint32_t machine_bdf)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_deassign_device(struct domain *d, uint32_t machine_bdf)
+static XSM_INLINE int xsm_hook_deassign_device(struct domain *d, uint32_t machine_bdf)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_resource_plug_core(void)
+static XSM_INLINE int xsm_hook_resource_plug_core(void)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_resource_unplug_core(void)
+static XSM_INLINE int xsm_hook_resource_unplug_core(void)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_resource_plug_pci(uint32_t machine_bdf)
-{
-    if ( !IS_PRIV(current->domain) )
-        return -EPERM;
-    return 0;
-}
-
-static XSM_INLINE int xsm_resource_unplug_pci(uint32_t machine_bdf)
+static XSM_INLINE int xsm_priv_resource_plug_pci(uint32_t machine_bdf)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_resource_setup_pci(uint32_t machine_bdf)
+static XSM_INLINE int xsm_priv_resource_unplug_pci(uint32_t machine_bdf)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_resource_setup_gsi(int gsi)
+static XSM_INLINE int xsm_priv_resource_setup_pci(uint32_t machine_bdf)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_resource_setup_misc(void)
+static XSM_INLINE int xsm_priv_resource_setup_gsi(int gsi)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_page_offline(uint32_t cmd)
+static XSM_INLINE int xsm_priv_resource_setup_misc(void)
+{
+    if ( !IS_PRIV(current->domain) )
+        return -EPERM;
+    return 0;
+}
+
+static XSM_INLINE int xsm_hook_page_offline(uint32_t cmd)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_tmem_op(void)
+static XSM_INLINE int xsm_hook_tmem_op(void)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_tmem_control(void)
+static XSM_INLINE int xsm_priv_tmem_control(void)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
@@ -330,34 +330,34 @@ static XSM_INLINE char * xsm_show_irq_sid(int irq)
     return NULL;
 }
 
-static XSM_INLINE int xsm_map_domain_pirq(struct domain *d, int irq, void *data)
+static XSM_INLINE int xsm_hook_map_domain_pirq(struct domain *d, int irq, void *data)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_unmap_domain_pirq(struct domain *d, int irq)
+static XSM_INLINE int xsm_dm_unmap_domain_pirq(struct domain *d, int irq)
 {
     if ( !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_irq_permission(struct domain *d, int pirq, uint8_t allow)
+static XSM_INLINE int xsm_hook_irq_permission(struct domain *d, int pirq, uint8_t allow)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_iomem_permission(struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
+static XSM_INLINE int xsm_hook_iomem_permission(struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_iomem_mapping(struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
+static XSM_INLINE int xsm_hook_iomem_mapping(struct domain *d, uint64_t s, uint64_t e, uint8_t allow)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_pci_config_permission(struct domain *d, uint32_t machine_bdf,
+static XSM_INLINE int xsm_hook_pci_config_permission(struct domain *d, uint32_t machine_bdf,
                                         uint16_t start, uint16_t end,
                                         uint8_t access)
 {
@@ -365,96 +365,96 @@ static XSM_INLINE int xsm_pci_config_permission(struct domain *d, uint32_t machi
 }
 
 #ifdef CONFIG_X86
-static XSM_INLINE int xsm_shadow_control(struct domain *d, uint32_t op)
+static XSM_INLINE int xsm_hook_shadow_control(struct domain *d, uint32_t op)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_hvm_param(struct domain *d, unsigned long op)
+static XSM_INLINE int xsm_target_hvm_param(struct domain *d, unsigned long op)
 {
     if ( current->domain != d && !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_hvm_set_pci_intx_level(struct domain *d)
+static XSM_INLINE int xsm_dm_hvm_set_pci_intx_level(struct domain *d)
 {
     if ( !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_hvm_set_isa_irq_level(struct domain *d)
+static XSM_INLINE int xsm_dm_hvm_set_isa_irq_level(struct domain *d)
 {
     if ( !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_hvm_set_pci_link_route(struct domain *d)
+static XSM_INLINE int xsm_dm_hvm_set_pci_link_route(struct domain *d)
 {
     if ( !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_hvm_inject_msi(struct domain *d)
+static XSM_INLINE int xsm_dm_hvm_inject_msi(struct domain *d)
 {
     if ( !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_mem_event_control(struct domain *d, int mode, int op)
+static XSM_INLINE int xsm_dm_mem_event_control(struct domain *d, int mode, int op)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_mem_event_op(struct domain *d, int op)
+static XSM_INLINE int xsm_dm_mem_event_op(struct domain *d, int op)
 {
     if ( !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_mem_sharing_op(struct domain *d, struct domain *cd, int op)
+static XSM_INLINE int xsm_dm_mem_sharing_op(struct domain *d, struct domain *cd, int op)
 {
     if ( !IS_PRIV_FOR(current->domain, cd) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_apic(struct domain *d, int cmd)
+static XSM_INLINE int xsm_priv_apic(struct domain *d, int cmd)
 {
     if ( !IS_PRIV(d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_platform_op(uint32_t op)
+static XSM_INLINE int xsm_priv_platform_op(uint32_t op)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_machine_memory_map(void)
+static XSM_INLINE int xsm_priv_machine_memory_map(void)
 {
     if ( !IS_PRIV(current->domain) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_domain_memory_map(struct domain *d)
+static XSM_INLINE int xsm_target_domain_memory_map(struct domain *d)
 {
     if ( current->domain != d && !IS_PRIV_FOR(current->domain, d) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_mmu_update(struct domain *d, struct domain *t,
+static XSM_INLINE int xsm_target_mmu_update(struct domain *d, struct domain *t,
                                      struct domain *f, uint32_t flags)
 {
     if ( t && d != t && !IS_PRIV_FOR(d, t) )
@@ -464,14 +464,14 @@ static XSM_INLINE int xsm_mmu_update(struct domain *d, struct domain *t,
     return 0;
 }
 
-static XSM_INLINE int xsm_mmuext_op(struct domain *d, struct domain *f)
+static XSM_INLINE int xsm_target_mmuext_op(struct domain *d, struct domain *f)
 {
     if ( d != f && !IS_PRIV_FOR(d, f) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_update_va_mapping(struct domain *d, struct domain *f, 
+static XSM_INLINE int xsm_target_update_va_mapping(struct domain *d, struct domain *f, 
                                                             l1_pgentry_t pte)
 {
     if ( d != f && !IS_PRIV_FOR(d, f) )
@@ -479,36 +479,36 @@ static XSM_INLINE int xsm_update_va_mapping(struct domain *d, struct domain *f,
     return 0;
 }
 
-static XSM_INLINE int xsm_add_to_physmap(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_target_add_to_physmap(struct domain *d1, struct domain *d2)
 {
     if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_remove_from_physmap(struct domain *d1, struct domain *d2)
+static XSM_INLINE int xsm_target_remove_from_physmap(struct domain *d1, struct domain *d2)
 {
     if ( d1 != d2 && !IS_PRIV_FOR(d1, d2) )
         return -EPERM;
     return 0;
 }
 
-static XSM_INLINE int xsm_bind_pt_irq(struct domain *d, struct xen_domctl_bind_pt_irq *bind)
+static XSM_INLINE int xsm_hook_bind_pt_irq(struct domain *d, struct xen_domctl_bind_pt_irq *bind)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_unbind_pt_irq(struct domain *d, struct xen_domctl_bind_pt_irq *bind)
+static XSM_INLINE int xsm_hook_unbind_pt_irq(struct domain *d, struct xen_domctl_bind_pt_irq *bind)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_ioport_permission(struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
+static XSM_INLINE int xsm_hook_ioport_permission(struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
 {
     return 0;
 }
 
-static XSM_INLINE int xsm_ioport_mapping(struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
+static XSM_INLINE int xsm_hook_ioport_mapping(struct domain *d, uint32_t s, uint32_t e, uint8_t allow)
 {
     return 0;
 }

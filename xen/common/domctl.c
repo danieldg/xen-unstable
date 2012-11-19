@@ -150,7 +150,7 @@ void getdomaininfo(struct domain *d, struct xen_domctl_getdomaininfo *info)
     if ( is_hvm_domain(d) )
         info->flags |= XEN_DOMINF_hvm_guest;
 
-    xsm_security_domaininfo(d, info);
+    xsm_populate_security_domaininfo(d, info);
 
     info->tot_pages         = d->tot_pages;
     info->max_pages         = d->max_pages;
@@ -580,7 +580,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
             break;
         }
 
-        ret = xsm_getdomaininfo(d);
+        ret = xsm_hook_getdomaininfo(d);
         if ( ret )
             goto getdomaininfo_out;
 
@@ -722,7 +722,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
 
         if ( pirq >= d->nr_pirqs )
             ret = -EINVAL;
-        else if ( xsm_irq_permission(d, pirq, allow) )
+        else if ( xsm_hook_irq_permission(d, pirq, allow) )
             ret = -EPERM;
         else if ( allow )
             ret = irq_permit_access(d, pirq);
@@ -741,7 +741,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
         if ( (mfn + nr_mfns - 1) < mfn ) /* wrap? */
             break;
 
-        if ( xsm_iomem_permission(d, mfn, mfn + nr_mfns - 1, allow) )
+        if ( xsm_hook_iomem_permission(d, mfn, mfn + nr_mfns - 1, allow) )
             ret = -EPERM;
         else if ( allow )
             ret = iomem_permit_access(d, mfn, mfn + nr_mfns - 1);
@@ -773,7 +773,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
             break;
         }
 
-        ret = xsm_set_target(d, e);
+        ret = xsm_hook_set_target(d, e);
         if ( ret ) {
             put_domain(e);
             break;

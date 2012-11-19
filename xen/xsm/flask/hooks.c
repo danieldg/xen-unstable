@@ -171,7 +171,7 @@ static void flask_domain_free_security(struct domain *d)
     xfree(dsec);
 }
 
-static int flask_evtchn_unbound(struct domain *d1, struct evtchn *chn, 
+static int flask_target_evtchn_unbound(struct domain *d1, struct evtchn *chn, 
                                 domid_t id2)
 {
     u32 sid1, sid2, newsid;
@@ -206,7 +206,7 @@ static int flask_evtchn_unbound(struct domain *d1, struct evtchn *chn,
     return rc;
 }
 
-static int flask_evtchn_interdomain(struct domain *d1, struct evtchn *chn1, 
+static int flask_hook_evtchn_interdomain(struct domain *d1, struct evtchn *chn1, 
                                     struct domain *d2, struct evtchn *chn2)
 {
     u32 sid1, sid2, newsid, reverse_sid;
@@ -252,7 +252,7 @@ static int flask_evtchn_interdomain(struct domain *d1, struct evtchn *chn1,
     return rc;
 }
 
-static void flask_evtchn_close_post(struct evtchn *chn)
+static void flask_hook_evtchn_close_post(struct evtchn *chn)
 {
     struct evtchn_security_struct *esec;
     esec = chn->ssid;
@@ -260,7 +260,7 @@ static void flask_evtchn_close_post(struct evtchn *chn)
     esec->sid = SECINITSID_UNLABELED;
 }
 
-static int flask_evtchn_send(struct domain *d, struct evtchn *chn)
+static int flask_hook_evtchn_send(struct domain *d, struct evtchn *chn)
 {
     int rc;
 
@@ -280,12 +280,12 @@ static int flask_evtchn_send(struct domain *d, struct evtchn *chn)
     return rc;
 }
 
-static int flask_evtchn_status(struct domain *d, struct evtchn *chn)
+static int flask_target_evtchn_status(struct domain *d, struct evtchn *chn)
 {
     return domain_has_evtchn(d, chn, EVENT__STATUS);
 }
 
-static int flask_evtchn_reset(struct domain *d1, struct domain *d2)
+static int flask_target_evtchn_reset(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_EVENT, EVENT__RESET);
 }
@@ -350,7 +350,7 @@ static char *flask_show_security_evtchn(struct domain *d, const struct evtchn *c
     return ctx;
 }
 
-static int flask_grant_mapref(struct domain *d1, struct domain *d2, 
+static int flask_hook_grant_mapref(struct domain *d1, struct domain *d2, 
                               uint32_t flags)
 {
     u32 perms = GRANT__MAP_READ;
@@ -361,63 +361,63 @@ static int flask_grant_mapref(struct domain *d1, struct domain *d2,
     return domain_has_perm(d1, d2, SECCLASS_GRANT, perms);
 }
 
-static int flask_grant_unmapref(struct domain *d1, struct domain *d2)
+static int flask_hook_grant_unmapref(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_GRANT, GRANT__UNMAP);
 }
 
-static int flask_grant_setup(struct domain *d1, struct domain *d2)
+static int flask_target_grant_setup(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_GRANT, GRANT__SETUP);
 }
 
-static int flask_grant_transfer(struct domain *d1, struct domain *d2)
+static int flask_hook_grant_transfer(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_GRANT, GRANT__TRANSFER);
 }
 
-static int flask_grant_copy(struct domain *d1, struct domain *d2)
+static int flask_hook_grant_copy(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_GRANT, GRANT__COPY);
 }
 
-static int flask_grant_query_size(struct domain *d1, struct domain *d2)
+static int flask_target_grant_query_size(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_GRANT, GRANT__QUERY);
 }
 
-static int flask_get_pod_target(struct domain *d)
+static int flask_priv_get_pod_target(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_DOMAIN, DOMAIN__GETPODTARGET);
 }
 
-static int flask_set_pod_target(struct domain *d)
+static int flask_priv_set_pod_target(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_DOMAIN, DOMAIN__SETPODTARGET);
 }
 
-static int flask_memory_exchange(struct domain *d)
+static int flask_target_memory_exchange(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_MMU, MMU__EXCHANGE);
 }
 
-static int flask_memory_adjust_reservation(struct domain *d1, struct domain *d2)
+static int flask_target_memory_adjust_reservation(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_MMU, MMU__ADJUST);
 }
 
-static int flask_memory_stat_reservation(struct domain *d1, struct domain *d2)
+static int flask_target_memory_stat_reservation(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_MMU, MMU__STAT);
 }
 
-static int flask_memory_pin_page(struct domain *d1, struct domain *d2,
+static int flask_hook_memory_pin_page(struct domain *d1, struct domain *d2,
                                  struct page_info *page)
 {
     return domain_has_perm(d1, d2, SECCLASS_MMU, MMU__PINPAGE);
 }
 
-static int flask_console_io(struct domain *d, int cmd)
+static int flask_priv_console_io(struct domain *d, int cmd)
 {
     u32 perm;
 
@@ -436,7 +436,7 @@ static int flask_console_io(struct domain *d, int cmd)
     return domain_has_xen(d, perm);
 }
 
-static int flask_profile(struct domain *d, int op)
+static int flask_hook_profile(struct domain *d, int op)
 {
     u32 perm;
 
@@ -468,23 +468,23 @@ static int flask_profile(struct domain *d, int op)
     return domain_has_xen(d, perm);
 }
 
-static int flask_kexec(void)
+static int flask_priv_kexec(void)
 {
     return domain_has_xen(current->domain, XEN__KEXEC);
 }
 
-static int flask_schedop_shutdown(struct domain *d1, struct domain *d2)
+static int flask_dm_schedop_shutdown(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_DOMAIN, DOMAIN__SHUTDOWN);
 }
 
-static void flask_security_domaininfo(struct domain *d, 
+static void flask_populate_security_domaininfo(struct domain *d, 
                                       struct xen_domctl_getdomaininfo *info)
 {
     info->ssidref = domain_sid(d);
 }
 
-static int flask_domain_create(struct domain *d, u32 ssidref)
+static int flask_hook_domain_create(struct domain *d, u32 ssidref)
 {
     int rc;
     struct domain_security_struct *dsec = d->ssid;
@@ -512,12 +512,12 @@ static int flask_domain_create(struct domain *d, u32 ssidref)
     return rc;
 }
 
-static int flask_getdomaininfo(struct domain *d)
+static int flask_hook_getdomaininfo(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_DOMAIN, DOMAIN__GETDOMAININFO);
 }
 
-static int flask_set_target(struct domain *d, struct domain *t)
+static int flask_hook_set_target(struct domain *d, struct domain *t)
 {
     int rc;
     struct domain_security_struct *dsec, *tsec;
@@ -753,7 +753,7 @@ static int flask_sysctl(int cmd)
     }
 }
 
-static int flask_readconsole(uint32_t clear)
+static int flask_hook_readconsole(uint32_t clear)
 {
     u32 perms = XEN__READCONSOLE;
 
@@ -763,7 +763,7 @@ static int flask_readconsole(uint32_t clear)
     return domain_has_xen(current->domain, perms);
 }
 
-static int flask_do_mca(void)
+static int flask_priv_do_mca(void)
 {
     return domain_has_xen(current->domain, XEN__MCA_OP);
 }
@@ -790,7 +790,7 @@ static char *flask_show_irq_sid (int irq)
     return ctx;
 }
 
-static int flask_map_domain_pirq (struct domain *d, int irq, void *data)
+static int flask_hook_map_domain_pirq (struct domain *d, int irq, void *data)
 {
     u32 sid, dsid;
     int rc = -EPERM;
@@ -823,7 +823,7 @@ static int flask_map_domain_pirq (struct domain *d, int irq, void *data)
     return rc;
 }
 
-static int flask_unmap_domain_pirq (struct domain *d, int irq)
+static int flask_dm_unmap_domain_pirq (struct domain *d, int irq)
 {
     u32 sid;
     int rc = -EPERM;
@@ -846,7 +846,7 @@ static int flask_unmap_domain_pirq (struct domain *d, int irq)
     return rc;
 }
 
-static int flask_irq_permission (struct domain *d, int pirq, uint8_t access)
+static int flask_hook_irq_permission (struct domain *d, int pirq, uint8_t access)
 {
     /* the PIRQ number is not useful; real IRQ is checked during mapping */
     return current_has_perm(d, SECCLASS_RESOURCE, resource_to_perm(access));
@@ -876,7 +876,7 @@ static int _iomem_has_perm(void *v, u32 sid, unsigned long start, unsigned long 
     return avc_has_perm(data->dsid, sid, SECCLASS_RESOURCE, RESOURCE__USE, &ad);
 }
 
-static int flask_iomem_permission(struct domain *d, uint64_t start, uint64_t end, uint8_t access)
+static int flask_hook_iomem_permission(struct domain *d, uint64_t start, uint64_t end, uint8_t access)
 {
     struct iomem_has_perm_data data;
     int rc;
@@ -897,12 +897,12 @@ static int flask_iomem_permission(struct domain *d, uint64_t start, uint64_t end
     return security_iterate_iomem_sids(start, end, _iomem_has_perm, &data);
 }
 
-static int flask_iomem_mapping(struct domain *d, uint64_t start, uint64_t end, uint8_t access)
+static int flask_hook_iomem_mapping(struct domain *d, uint64_t start, uint64_t end, uint8_t access)
 {
-    return flask_iomem_permission(d, start, end, access);
+    return flask_hook_iomem_permission(d, start, end, access);
 }
 
-static int flask_pci_config_permission(struct domain *d, uint32_t machine_bdf, uint16_t start, uint16_t end, uint8_t access)
+static int flask_hook_pci_config_permission(struct domain *d, uint32_t machine_bdf, uint16_t start, uint16_t end, uint8_t access)
 {
     u32 dsid, rsid;
     int rc = -EPERM;
@@ -924,12 +924,12 @@ static int flask_pci_config_permission(struct domain *d, uint32_t machine_bdf, u
 
 }
 
-static int flask_resource_plug_core(void)
+static int flask_hook_resource_plug_core(void)
 {
     return avc_current_has_perm(SECINITSID_DOMXEN, SECCLASS_RESOURCE, RESOURCE__PLUG, NULL);
 }
 
-static int flask_resource_unplug_core(void)
+static int flask_hook_resource_unplug_core(void)
 {
     return avc_current_has_perm(SECINITSID_DOMXEN, SECCLASS_RESOURCE, RESOURCE__UNPLUG, NULL);
 }
@@ -939,7 +939,7 @@ static int flask_resource_use_core(void)
     return avc_current_has_perm(SECINITSID_DOMXEN, SECCLASS_RESOURCE, RESOURCE__USE, NULL);
 }
 
-static int flask_resource_plug_pci(uint32_t machine_bdf)
+static int flask_priv_resource_plug_pci(uint32_t machine_bdf)
 {
     u32 rsid;
     int rc = -EPERM;
@@ -954,7 +954,7 @@ static int flask_resource_plug_pci(uint32_t machine_bdf)
     return avc_current_has_perm(rsid, SECCLASS_RESOURCE, RESOURCE__PLUG, &ad);
 }
 
-static int flask_resource_unplug_pci(uint32_t machine_bdf)
+static int flask_priv_resource_unplug_pci(uint32_t machine_bdf)
 {
     u32 rsid;
     int rc = -EPERM;
@@ -969,7 +969,7 @@ static int flask_resource_unplug_pci(uint32_t machine_bdf)
     return avc_current_has_perm(rsid, SECCLASS_RESOURCE, RESOURCE__UNPLUG, &ad);
 }
 
-static int flask_resource_setup_pci(uint32_t machine_bdf)
+static int flask_priv_resource_setup_pci(uint32_t machine_bdf)
 {
     u32 rsid;
     int rc = -EPERM;
@@ -984,7 +984,7 @@ static int flask_resource_setup_pci(uint32_t machine_bdf)
     return avc_current_has_perm(rsid, SECCLASS_RESOURCE, RESOURCE__SETUP, &ad);
 }
 
-static int flask_resource_setup_gsi(int gsi)
+static int flask_priv_resource_setup_gsi(int gsi)
 {
     u32 rsid;
     int rc = -EPERM;
@@ -997,18 +997,18 @@ static int flask_resource_setup_gsi(int gsi)
     return avc_current_has_perm(rsid, SECCLASS_RESOURCE, RESOURCE__SETUP, &ad);
 }
 
-static int flask_resource_setup_misc(void)
+static int flask_priv_resource_setup_misc(void)
 {
     return avc_current_has_perm(SECINITSID_XEN, SECCLASS_RESOURCE, RESOURCE__SETUP, NULL);
 }
 
-static inline int flask_page_offline(uint32_t cmd)
+static inline int flask_hook_page_offline(uint32_t cmd)
 {
     switch (cmd) {
     case sysctl_page_offline:
-        return flask_resource_unplug_core();
+        return flask_hook_resource_unplug_core();
     case sysctl_page_online:
-        return flask_resource_plug_core();
+        return flask_hook_resource_plug_core();
     case sysctl_query_page_offline:
         return flask_resource_use_core();
     default:
@@ -1016,18 +1016,18 @@ static inline int flask_page_offline(uint32_t cmd)
     }
 }
 
-static inline int flask_tmem_op(void)
+static inline int flask_hook_tmem_op(void)
 {
     return domain_has_xen(current->domain, XEN__TMEM_OP);
 }
 
-static inline int flask_tmem_control(void)
+static inline int flask_priv_tmem_control(void)
 {
     return domain_has_xen(current->domain, XEN__TMEM_CONTROL);
 }
 
 #ifdef CONFIG_X86
-static int flask_shadow_control(struct domain *d, uint32_t op)
+static int flask_hook_shadow_control(struct domain *d, uint32_t op)
 {
     u32 perm;
 
@@ -1079,7 +1079,7 @@ static int _ioport_has_perm(void *v, u32 sid, unsigned long start, unsigned long
     return avc_has_perm(data->dsid, sid, SECCLASS_RESOURCE, RESOURCE__USE, &ad);
 }
 
-static int flask_ioport_permission(struct domain *d, uint32_t start, uint32_t end, uint8_t access)
+static int flask_hook_ioport_permission(struct domain *d, uint32_t start, uint32_t end, uint8_t access)
 {
     int rc;
     struct ioport_has_perm_data data;
@@ -1101,12 +1101,12 @@ static int flask_ioport_permission(struct domain *d, uint32_t start, uint32_t en
     return security_iterate_ioport_sids(start, end, _ioport_has_perm, &data);
 }
 
-static int flask_ioport_mapping(struct domain *d, uint32_t start, uint32_t end, uint8_t access)
+static int flask_hook_ioport_mapping(struct domain *d, uint32_t start, uint32_t end, uint8_t access)
 {
-    return flask_ioport_permission(d, start, end, access);
+    return flask_hook_ioport_permission(d, start, end, access);
 }
 
-static int flask_hvm_param(struct domain *d, unsigned long op)
+static int flask_target_hvm_param(struct domain *d, unsigned long op)
 {
     u32 perm;
 
@@ -1128,37 +1128,37 @@ static int flask_hvm_param(struct domain *d, unsigned long op)
     return current_has_perm(d, SECCLASS_HVM, perm);
 }
 
-static int flask_hvm_set_pci_intx_level(struct domain *d)
+static int flask_dm_hvm_set_pci_intx_level(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_HVM, HVM__PCILEVEL);
 }
 
-static int flask_hvm_set_isa_irq_level(struct domain *d)
+static int flask_dm_hvm_set_isa_irq_level(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_HVM, HVM__IRQLEVEL);
 }
 
-static int flask_hvm_set_pci_link_route(struct domain *d)
+static int flask_dm_hvm_set_pci_link_route(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_HVM, HVM__PCIROUTE);
 }
 
-static int flask_hvm_inject_msi(struct domain *d)
+static int flask_dm_hvm_inject_msi(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_HVM, HVM__SEND_IRQ);
 }
 
-static int flask_mem_event_control(struct domain *d, int mode, int op)
+static int flask_dm_mem_event_control(struct domain *d, int mode, int op)
 {
     return current_has_perm(d, SECCLASS_HVM, HVM__MEM_EVENT);
 }
 
-static int flask_mem_event_op(struct domain *d, int op)
+static int flask_dm_mem_event_op(struct domain *d, int op)
 {
     return current_has_perm(d, SECCLASS_HVM, HVM__MEM_EVENT);
 }
 
-static int flask_mem_sharing_op(struct domain *d, struct domain *cd, int op)
+static int flask_dm_mem_sharing_op(struct domain *d, struct domain *cd, int op)
 {
     int rc = current_has_perm(cd, SECCLASS_HVM, HVM__MEM_SHARING);
     if ( rc )
@@ -1166,7 +1166,7 @@ static int flask_mem_sharing_op(struct domain *d, struct domain *cd, int op)
     return domain_has_perm(d, cd, SECCLASS_HVM, HVM__SHARE_MEM);
 }
 
-static int flask_apic(struct domain *d, int cmd)
+static int flask_priv_apic(struct domain *d, int cmd)
 {
     u32 perm;
 
@@ -1186,7 +1186,7 @@ static int flask_apic(struct domain *d, int cmd)
     return domain_has_xen(d, perm);
 }
 
-static int flask_platform_op(uint32_t op)
+static int flask_priv_platform_op(uint32_t op)
 {
     switch ( op )
     {
@@ -1241,22 +1241,22 @@ static int flask_platform_op(uint32_t op)
         return domain_has_xen(current->domain, XEN__GETCPUINFO);
 
     default:
-        printk("flask_platform_op: Unknown op %d\n", op);
+        printk("flask_priv_platform_op: Unknown op %d\n", op);
         return -EPERM;
     }
 }
 
-static int flask_machine_memory_map(void)
+static int flask_priv_machine_memory_map(void)
 {
     return avc_current_has_perm(SECINITSID_XEN, SECCLASS_MMU, MMU__MEMORYMAP, NULL);
 }
 
-static int flask_domain_memory_map(struct domain *d)
+static int flask_target_domain_memory_map(struct domain *d)
 {
     return current_has_perm(d, SECCLASS_MMU, MMU__MEMORYMAP);
 }
 
-static int flask_mmu_update(struct domain *d, struct domain *t,
+static int flask_target_mmu_update(struct domain *d, struct domain *t,
                             struct domain *f, uint32_t flags)
 {
     int rc = 0;
@@ -1279,12 +1279,12 @@ static int flask_mmu_update(struct domain *d, struct domain *t,
     return rc;
 }
 
-static int flask_mmuext_op(struct domain *d, struct domain *f)
+static int flask_target_mmuext_op(struct domain *d, struct domain *f)
 {
     return domain_has_perm(d, f, SECCLASS_MMU, MMU__MMUEXT_OP);
 }
 
-static int flask_update_va_mapping(struct domain *d, struct domain *f,
+static int flask_target_update_va_mapping(struct domain *d, struct domain *f,
                                    l1_pgentry_t pte)
 {
     u32 map_perms = MMU__MAP_READ;
@@ -1296,17 +1296,17 @@ static int flask_update_va_mapping(struct domain *d, struct domain *f,
     return domain_has_perm(d, f, SECCLASS_MMU, map_perms);
 }
 
-static int flask_add_to_physmap(struct domain *d1, struct domain *d2)
+static int flask_target_add_to_physmap(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_MMU, MMU__PHYSMAP);
 }
 
-static int flask_remove_from_physmap(struct domain *d1, struct domain *d2)
+static int flask_target_remove_from_physmap(struct domain *d1, struct domain *d2)
 {
     return domain_has_perm(d1, d2, SECCLASS_MMU, MMU__PHYSMAP);
 }
 
-static int flask_get_device_group(uint32_t machine_bdf)
+static int flask_hook_get_device_group(uint32_t machine_bdf)
 {
     u32 rsid;
     int rc = -EPERM;
@@ -1330,7 +1330,7 @@ static int flask_test_assign_device(uint32_t machine_bdf)
     return avc_current_has_perm(rsid, SECCLASS_RESOURCE, RESOURCE__STAT_DEVICE, NULL);
 }
 
-static int flask_assign_device(struct domain *d, uint32_t machine_bdf)
+static int flask_hook_assign_device(struct domain *d, uint32_t machine_bdf)
 {
     u32 dsid, rsid;
     int rc = -EPERM;
@@ -1354,7 +1354,7 @@ static int flask_assign_device(struct domain *d, uint32_t machine_bdf)
     return avc_has_perm(dsid, rsid, SECCLASS_RESOURCE, RESOURCE__USE, &ad);
 }
 
-static int flask_deassign_device(struct domain *d, uint32_t machine_bdf)
+static int flask_hook_deassign_device(struct domain *d, uint32_t machine_bdf)
 {
     u32 rsid;
     int rc = -EPERM;
@@ -1370,7 +1370,7 @@ static int flask_deassign_device(struct domain *d, uint32_t machine_bdf)
     return avc_current_has_perm(rsid, SECCLASS_RESOURCE, RESOURCE__REMOVE_DEVICE, NULL);
 }
 
-static int flask_bind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *bind)
+static int flask_hook_bind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *bind)
 {
     u32 dsid, rsid;
     int rc = -EPERM;
@@ -1395,7 +1395,7 @@ static int flask_bind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *b
     return avc_has_perm(dsid, rsid, SECCLASS_RESOURCE, RESOURCE__USE, &ad);
 }
 
-static int flask_unbind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *bind)
+static int flask_hook_unbind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq *bind)
 {
     return current_has_perm(d, SECCLASS_RESOURCE, RESOURCE__REMOVE);
 }
@@ -1404,28 +1404,28 @@ static int flask_unbind_pt_irq (struct domain *d, struct xen_domctl_bind_pt_irq 
 long do_flask_op(XEN_GUEST_HANDLE_PARAM(xsm_op_t) u_flask_op);
 
 static struct xsm_operations flask_ops = {
-    .security_domaininfo = flask_security_domaininfo,
-    .domain_create = flask_domain_create,
-    .getdomaininfo = flask_getdomaininfo,
-    .set_target = flask_set_target,
+    .populate_security_domaininfo = flask_populate_security_domaininfo,
+    .hook_domain_create = flask_hook_domain_create,
+    .hook_getdomaininfo = flask_hook_getdomaininfo,
+    .hook_set_target = flask_hook_set_target,
     .domctl = flask_domctl,
     .sysctl = flask_sysctl,
-    .readconsole = flask_readconsole,
-    .do_mca = flask_do_mca,
+    .hook_readconsole = flask_hook_readconsole,
+    .priv_do_mca = flask_priv_do_mca,
 
-    .evtchn_unbound = flask_evtchn_unbound,
-    .evtchn_interdomain = flask_evtchn_interdomain,
-    .evtchn_close_post = flask_evtchn_close_post,
-    .evtchn_send = flask_evtchn_send,
-    .evtchn_status = flask_evtchn_status,
-    .evtchn_reset = flask_evtchn_reset,
+    .target_evtchn_unbound = flask_target_evtchn_unbound,
+    .hook_evtchn_interdomain = flask_hook_evtchn_interdomain,
+    .hook_evtchn_close_post = flask_hook_evtchn_close_post,
+    .hook_evtchn_send = flask_hook_evtchn_send,
+    .target_evtchn_status = flask_target_evtchn_status,
+    .target_evtchn_reset = flask_target_evtchn_reset,
 
-    .grant_mapref = flask_grant_mapref,
-    .grant_unmapref = flask_grant_unmapref,
-    .grant_setup = flask_grant_setup,
-    .grant_transfer = flask_grant_transfer,
-    .grant_copy = flask_grant_copy,
-    .grant_query_size = flask_grant_query_size,
+    .hook_grant_mapref = flask_hook_grant_mapref,
+    .hook_grant_unmapref = flask_hook_grant_unmapref,
+    .target_grant_setup = flask_target_grant_setup,
+    .hook_grant_transfer = flask_hook_grant_transfer,
+    .hook_grant_copy = flask_hook_grant_copy,
+    .target_grant_query_size = flask_target_grant_query_size,
 
     .alloc_security_domain = flask_domain_alloc_security,
     .free_security_domain = flask_domain_free_security,
@@ -1433,70 +1433,70 @@ static struct xsm_operations flask_ops = {
     .free_security_evtchn = flask_free_security_evtchn,
     .show_security_evtchn = flask_show_security_evtchn,
 
-    .get_pod_target = flask_get_pod_target,
-    .set_pod_target = flask_set_pod_target,
-    .memory_exchange = flask_memory_exchange,
-    .memory_adjust_reservation = flask_memory_adjust_reservation,
-    .memory_stat_reservation = flask_memory_stat_reservation,
-    .memory_pin_page = flask_memory_pin_page,
+    .priv_get_pod_target = flask_priv_get_pod_target,
+    .priv_set_pod_target = flask_priv_set_pod_target,
+    .target_memory_exchange = flask_target_memory_exchange,
+    .target_memory_adjust_reservation = flask_target_memory_adjust_reservation,
+    .target_memory_stat_reservation = flask_target_memory_stat_reservation,
+    .hook_memory_pin_page = flask_hook_memory_pin_page,
 
-    .console_io = flask_console_io,
+    .priv_console_io = flask_priv_console_io,
 
-    .profile = flask_profile,
+    .hook_profile = flask_hook_profile,
 
-    .kexec = flask_kexec,
-    .schedop_shutdown = flask_schedop_shutdown,
+    .priv_kexec = flask_priv_kexec,
+    .dm_schedop_shutdown = flask_dm_schedop_shutdown,
 
     .show_irq_sid = flask_show_irq_sid,
 
-    .map_domain_pirq = flask_map_domain_pirq,
-    .unmap_domain_pirq = flask_unmap_domain_pirq,
-    .irq_permission = flask_irq_permission,
-    .iomem_permission = flask_iomem_permission,
-    .iomem_mapping = flask_iomem_mapping,
-    .pci_config_permission = flask_pci_config_permission,
+    .hook_map_domain_pirq = flask_hook_map_domain_pirq,
+    .dm_unmap_domain_pirq = flask_dm_unmap_domain_pirq,
+    .hook_irq_permission = flask_hook_irq_permission,
+    .hook_iomem_permission = flask_hook_iomem_permission,
+    .hook_iomem_mapping = flask_hook_iomem_mapping,
+    .hook_pci_config_permission = flask_hook_pci_config_permission,
 
-    .resource_plug_core = flask_resource_plug_core,
-    .resource_unplug_core = flask_resource_unplug_core,
-    .resource_plug_pci = flask_resource_plug_pci,
-    .resource_unplug_pci = flask_resource_unplug_pci,
-    .resource_setup_pci = flask_resource_setup_pci,
-    .resource_setup_gsi = flask_resource_setup_gsi,
-    .resource_setup_misc = flask_resource_setup_misc,
+    .hook_resource_plug_core = flask_hook_resource_plug_core,
+    .hook_resource_unplug_core = flask_hook_resource_unplug_core,
+    .priv_resource_plug_pci = flask_priv_resource_plug_pci,
+    .priv_resource_unplug_pci = flask_priv_resource_unplug_pci,
+    .priv_resource_setup_pci = flask_priv_resource_setup_pci,
+    .priv_resource_setup_gsi = flask_priv_resource_setup_gsi,
+    .priv_resource_setup_misc = flask_priv_resource_setup_misc,
 
-    .page_offline = flask_page_offline,
-    .tmem_op = flask_tmem_op,
-    .tmem_control = flask_tmem_control,
+    .hook_page_offline = flask_hook_page_offline,
+    .hook_tmem_op = flask_hook_tmem_op,
+    .priv_tmem_control = flask_priv_tmem_control,
 
     .do_xsm_op = do_flask_op,
 
 #ifdef CONFIG_X86
-    .shadow_control = flask_shadow_control,
-    .hvm_param = flask_hvm_param,
-    .hvm_set_pci_intx_level = flask_hvm_set_pci_intx_level,
-    .hvm_set_isa_irq_level = flask_hvm_set_isa_irq_level,
-    .hvm_set_pci_link_route = flask_hvm_set_pci_link_route,
-    .hvm_inject_msi = flask_hvm_inject_msi,
-    .mem_event_control = flask_mem_event_control,
-    .mem_event_op = flask_mem_event_op,
-    .mem_sharing_op = flask_mem_sharing_op,
-    .apic = flask_apic,
-    .platform_op = flask_platform_op,
-    .machine_memory_map = flask_machine_memory_map,
-    .domain_memory_map = flask_domain_memory_map,
-    .mmu_update = flask_mmu_update,
-    .mmuext_op = flask_mmuext_op,
-    .update_va_mapping = flask_update_va_mapping,
-    .add_to_physmap = flask_add_to_physmap,
-    .remove_from_physmap = flask_remove_from_physmap,
-    .get_device_group = flask_get_device_group,
-    .test_assign_device = flask_test_assign_device,
-    .assign_device = flask_assign_device,
-    .deassign_device = flask_deassign_device,
-    .bind_pt_irq = flask_bind_pt_irq,
-    .unbind_pt_irq = flask_unbind_pt_irq,
-    .ioport_permission = flask_ioport_permission,
-    .ioport_mapping = flask_ioport_mapping,
+    .hook_shadow_control = flask_hook_shadow_control,
+    .target_hvm_param = flask_target_hvm_param,
+    .dm_hvm_set_pci_intx_level = flask_dm_hvm_set_pci_intx_level,
+    .dm_hvm_set_isa_irq_level = flask_dm_hvm_set_isa_irq_level,
+    .dm_hvm_set_pci_link_route = flask_dm_hvm_set_pci_link_route,
+    .dm_hvm_inject_msi = flask_dm_hvm_inject_msi,
+    .dm_mem_event_control = flask_dm_mem_event_control,
+    .dm_mem_event_op = flask_dm_mem_event_op,
+    .dm_mem_sharing_op = flask_dm_mem_sharing_op,
+    .priv_apic = flask_priv_apic,
+    .priv_platform_op = flask_priv_platform_op,
+    .priv_machine_memory_map = flask_priv_machine_memory_map,
+    .target_domain_memory_map = flask_target_domain_memory_map,
+    .target_mmu_update = flask_target_mmu_update,
+    .target_mmuext_op = flask_target_mmuext_op,
+    .target_update_va_mapping = flask_target_update_va_mapping,
+    .target_add_to_physmap = flask_target_add_to_physmap,
+    .target_remove_from_physmap = flask_target_remove_from_physmap,
+    .hook_get_device_group = flask_hook_get_device_group,
+    .hook_test_assign_device = flask_test_assign_device,
+    .hook_assign_device = flask_hook_assign_device,
+    .hook_deassign_device = flask_hook_deassign_device,
+    .hook_bind_pt_irq = flask_hook_bind_pt_irq,
+    .hook_unbind_pt_irq = flask_hook_unbind_pt_irq,
+    .hook_ioport_permission = flask_hook_ioport_permission,
+    .hook_ioport_mapping = flask_hook_ioport_mapping,
 #endif
 };
 

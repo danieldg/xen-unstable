@@ -184,14 +184,14 @@ long arch_do_sysctl(
         switch ( sysctl->u.cpu_hotplug.op )
         {
         case XEN_SYSCTL_CPU_HOTPLUG_ONLINE:
-            ret = xsm_resource_plug_core();
+            ret = xsm_hook_resource_plug_core();
             if ( ret )
                 break;
             ret = continue_hypercall_on_cpu(
                 0, cpu_up_helper, (void *)(unsigned long)cpu);
             break;
         case XEN_SYSCTL_CPU_HOTPLUG_OFFLINE:
-            ret = xsm_resource_unplug_core();
+            ret = xsm_hook_resource_unplug_core();
             if ( ret )
                 break;
             ret = continue_hypercall_on_cpu(

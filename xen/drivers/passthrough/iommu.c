@@ -452,7 +452,7 @@ static int iommu_get_device_group(
              ((pdev->bus == bus) && (pdev->devfn == devfn)) )
             continue;
 
-        if ( xsm_get_device_group((seg << 16) | (pdev->bus << 8) | pdev->devfn) )
+        if ( xsm_hook_get_device_group((seg << 16) | (pdev->bus << 8) | pdev->devfn) )
             continue;
 
         sdev_id = ops->get_device_group_id(seg, pdev->bus, pdev->devfn);
@@ -555,7 +555,7 @@ int iommu_do_domctl(
         u32 max_sdevs;
         XEN_GUEST_HANDLE_64(uint32) sdevs;
 
-        ret = xsm_get_device_group(domctl->u.get_device_group.machine_sbdf);
+        ret = xsm_hook_get_device_group(domctl->u.get_device_group.machine_sbdf);
         if ( ret )
             break;
 
@@ -583,7 +583,7 @@ int iommu_do_domctl(
     break;
 
     case XEN_DOMCTL_test_assign_device:
-        ret = xsm_test_assign_device(domctl->u.assign_device.machine_sbdf);
+        ret = xsm_hook_test_assign_device(domctl->u.assign_device.machine_sbdf);
         if ( ret )
             break;
 
@@ -607,7 +607,7 @@ int iommu_do_domctl(
             break;
         }
 
-        ret = xsm_assign_device(d, domctl->u.assign_device.machine_sbdf);
+        ret = xsm_hook_assign_device(d, domctl->u.assign_device.machine_sbdf);
         if ( ret )
             break;
 
@@ -626,7 +626,7 @@ int iommu_do_domctl(
         break;
 
     case XEN_DOMCTL_deassign_device:
-        ret = xsm_deassign_device(d, domctl->u.assign_device.machine_sbdf);
+        ret = xsm_hook_deassign_device(d, domctl->u.assign_device.machine_sbdf);
         if ( ret )
             break;
 
