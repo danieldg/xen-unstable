@@ -96,10 +96,6 @@ long arch_do_domctl(
 
         page = mfn_to_page(mfn);
 
-        ret = xsm_getpageframeinfo(d);
-        if ( ret )
-            break;
-
         if ( likely(get_page(page, d)) )
         {
             ret = 0;
@@ -139,10 +135,6 @@ long arch_do_domctl(
             unsigned int num = domctl->u.getpageframeinfo3.num;
             struct page_info *page;
             xen_pfn_t *arr;
-
-            ret = xsm_getpageframeinfo(d);
-            if ( ret )
-                break;
 
             if ( unlikely(num > 1024) ||
                  unlikely(num != domctl->u.getpageframeinfo3.num) )
@@ -228,10 +220,6 @@ long arch_do_domctl(
         int n,j;
         int num = domctl->u.getpageframeinfo2.num;
         uint32_t *arr32;
-
-        ret = xsm_getpageframeinfo(d);
-        if ( ret )
-            break;
 
         if ( unlikely(num > 1024) )
         {
@@ -324,10 +312,6 @@ long arch_do_domctl(
         uint64_t mfn;
         struct page_info *page;
 
-        ret = xsm_getmemlist(d);
-        if ( ret )
-            break;
-
         if ( unlikely(d->is_dying) ) {
             ret = -EINVAL;
             break;
@@ -363,10 +347,6 @@ long arch_do_domctl(
         struct page_info *page;
         void *hypercall_page;
 
-        ret = xsm_hypercall_init(d);
-        if ( ret )
-            break;
-
         page = get_page_from_gfn(d, gmfn, NULL, P2M_ALLOC);
 
         ret = -EACCES;
@@ -390,10 +370,6 @@ long arch_do_domctl(
     case XEN_DOMCTL_sethvmcontext:
     { 
         struct hvm_domain_context c = { .size = domctl->u.hvmcontext.size };
-
-        ret = xsm_hvmcontext(d, domctl->cmd);
-        if ( ret )
-            goto sethvmcontext_out;
 
         ret = -EINVAL;
         if ( !is_hvm_domain(d) ) 
@@ -420,10 +396,6 @@ long arch_do_domctl(
     case XEN_DOMCTL_gethvmcontext:
     { 
         struct hvm_domain_context c = { 0 };
-
-        ret = xsm_hvmcontext(d, domctl->cmd);
-        if ( ret )
-            goto gethvmcontext_out;
 
         ret = -EINVAL;
         if ( !is_hvm_domain(d) ) 
@@ -468,10 +440,6 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_gethvmcontext_partial:
     { 
-        ret = xsm_hvmcontext(d, domctl->cmd);
-        if ( ret )
-            break;
-
         ret = -EINVAL;
         if ( !is_hvm_domain(d) ) 
             break;
@@ -487,10 +455,6 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_set_address_size:
     {
-        ret = xsm_address_size(d, domctl->cmd);
-        if ( ret )
-            break;
-
         switch ( domctl->u.address_size.size )
         {
         case 32:
@@ -508,10 +472,6 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_get_address_size:
     {
-        ret = xsm_address_size(d, domctl->cmd);
-        if ( ret )
-            break;
-
         domctl->u.address_size.size =
             is_pv_32on64_domain(d) ? 32 : BITS_PER_LONG;
 
@@ -524,10 +484,6 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_set_machine_address_size:
     {
-        ret = xsm_machine_address_size(d, domctl->cmd);
-        if ( ret )
-            break;
-
         ret = -EBUSY;
         if ( d->tot_pages > 0 )
             break;
@@ -540,10 +496,6 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_get_machine_address_size:
     {
-        ret = xsm_machine_address_size(d, domctl->cmd);
-        if ( ret )
-            break;
-
         domctl->u.address_size.size = d->arch.physaddr_bitsize;
 
         ret = 0;
@@ -556,10 +508,6 @@ long arch_do_domctl(
     case XEN_DOMCTL_sendtrigger:
     {
         struct vcpu *v;
-
-        ret = xsm_sendtrigger(d);
-        if ( ret )
-            break;
 
         ret = -EINVAL;
         if ( domctl->u.sendtrigger.vcpu >= MAX_VIRT_CPUS )
@@ -827,10 +775,6 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_pin_mem_cacheattr:
     {
-        ret = xsm_pin_mem_cacheattr(d);
-        if ( ret )
-            break;
-
         ret = hvm_set_mem_pinned_cacheattr(
             d, domctl->u.pin_mem_cacheattr.start,
             domctl->u.pin_mem_cacheattr.end,
@@ -845,10 +789,6 @@ long arch_do_domctl(
         struct vcpu *v;
 
         evc = &domctl->u.ext_vcpucontext;
-
-        ret = xsm_ext_vcpucontext(d, domctl->cmd);
-        if ( ret )
-            break;
 
         ret = -ESRCH;
         if ( (evc->vcpu >= d->max_vcpus) ||
@@ -1115,10 +1055,6 @@ long arch_do_domctl(
 
         evc = &domctl->u.vcpuextstate;
 
-        ret = xsm_vcpuextstate(d, domctl->cmd);
-        if ( ret )
-            goto vcpuextstate_out;
-
         ret = -ESRCH;
         if ( (evc->vcpu >= d->max_vcpus) ||
              ((v = d->vcpu[evc->vcpu]) == NULL) )
@@ -1229,9 +1165,7 @@ long arch_do_domctl(
 
     case XEN_DOMCTL_mem_sharing_op:
     {
-        ret = xsm_mem_sharing(d);
-        if ( !ret )
-            ret = mem_sharing_domctl(d, &domctl->u.mem_sharing_op);
+        ret = mem_sharing_domctl(d, &domctl->u.mem_sharing_op);
     }
     break;
 
@@ -1262,11 +1196,9 @@ long arch_do_domctl(
         if ( current->domain == d )
             break;
 
-        ret = xsm_mem_event_setup(d);
-        if ( !ret ) {
-            p2m = p2m_get_hostp2m(d);
-            p2m->access_required = domctl->u.access_required.access_required;
-        }
+        ret = 0;
+        p2m = p2m_get_hostp2m(d);
+        p2m->access_required = domctl->u.access_required.access_required;
     }
     break;
 
