@@ -10,7 +10,8 @@
  *  as published by the Free Software Foundation.
  */
 
-#define XSM_DEFAULT(type, name) type dummy_ ## name
+#define XSM_NO_WRAPPERS
+#define XSM_INLINE /* */
 #include <xsm/dummy.h>
 
 struct xsm_operations dummy_xsm_ops;
@@ -19,7 +20,7 @@ struct xsm_operations dummy_xsm_ops;
     do {                                                               \
         if ( !ops->function )                                          \
         {                                                              \
-            ops->function = dummy_##function;                          \
+            ops->function = xsm_##function;                            \
             if (ops != &dummy_xsm_ops)                                 \
                 dprintk(XENLOG_DEBUG, "Had to override the " #function \
                     " security operation with the dummy one.\n");      \

@@ -195,6 +195,8 @@ struct xsm_operations {
 
 extern struct xsm_operations *xsm_ops;
 
+#ifndef XSM_NO_WRAPPERS
+
 static inline void xsm_security_domaininfo (struct domain *d,
                                         struct xen_domctl_getdomaininfo *info)
 {
@@ -846,6 +848,7 @@ static inline int xsm_ioport_mapping (struct domain *d, uint32_t s, uint32_t e, 
     return xsm_ops->ioport_mapping(d, s, e, allow);
 }
 #endif /* CONFIG_X86 */
+#endif /* XSM_NO_WRAPPERS */
 
 extern int xsm_init(unsigned long *module_map, const multiboot_info_t *mbi,
                     void *(*bootstrap_map)(const module_t *));
@@ -860,7 +863,7 @@ extern void xsm_fixup_ops(struct xsm_operations *ops);
 
 #else /* XSM_ENABLE */
 
-#define XSM_DEFAULT(type, name) inline type xsm_ ## name
+#define XSM_INLINE inline
 #include <xsm/dummy.h>
 
 static inline int xsm_init (unsigned long *module_map,
